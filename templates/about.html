@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* .user_container {
+            margin: 0;
+            display: grid;
+            place-content: center;
+            min-height: 100vh;
+        }
+        img {
+            border-radius: 50%; 
+            height: 175px; 
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-family: sans-serif; 
+            font-weight: normal; 
+        }
+
+        h1 span {
+            font-style: italic; 
+            font-weight: bold; 
+        } */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .poster {
+            border-radius: 10px;
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .name {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .rating {
+            align-self: flex-end;
+        }
+        .summary {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- semantic elements, like a div nothing special -->
+    <!-- <nav>
+        <ul>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/">Home</a></li>
+        </ul>
+    </nav> -->
+    <!-- {% for user in users %}
+    <div class="user_container">
+        <img src="{{ user['pic'] }}" class="profile-pic">
+        <h1>Hello, <span>{{ user['name'] }}</span> 🎉🎉</h1>
+    </div>
+    {% endfor %} -->
+
+    <!-- {% for user in users %}
+    <div class="user-container">
+      <img class="user-pic" src="{{user.pic}}" alt="Profile picture" />
+      <p class="user-msg">
+        Hello, <span class="user-name">{{user.name}} {% if user.pro %}🚀{% else %}🎊{% endif %}</span>
+      </p>
+    </div>
+    {% endfor %} -->
+
+    <!-- shorter way -->
+    <!-- mustache -->
+    <!-- {% for user in users %}
+    <div class="user-container">
+      <img class="user-pic" src="{{user.pic}}" alt="Profile picture" />
+      <p class="user-msg">
+        Hello,
+        <span class="user-name"
+          >{{user.name}} {{ "🚀" if user.pro else "🎊🎊" }}
+        </span>
+      </p>
+    </div>
+    {% endfor %} -->
+
+    {% for movie in movies %}
+    <div class="container">
+        <img src="{{ movie.poster }}" alt="{{ movie.name }}" class="poster">
+        <h2 class="name">{{ movie.name }}</h2>
+        <div class="rating">
+            {% for i in range(1, 6) %}
+                {% if movie.rating >= i %}
+                    <span class="fa fa-star checked"></span>
+                {% else %}
+                    <span class="fa fa-star"></span>
+                {% endif %}
+            {% endfor %}
+            {{ movie.rating }}
+        </div>
+        <p class="summary">{{ movie.summary }}</p>
+    </div>
+    {% endfor %}
+</body>
+</html>
