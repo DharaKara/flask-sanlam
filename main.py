@@ -1,7 +1,83 @@
-from flask import Flask, jsonify, request, render_template
-from jinja2 import Template
+from flask import Flask, jsonify, request, render_template, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import text
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
+load_dotenv()  # os env (environmental variable)
+print(os.environ.get("AZURE_DATABASE_URL"))
+# mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
+connection_string = os.environ.get("AZURE_DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+
+db = SQLAlchemy(app)  # orm
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+except Exception as e:
+    print("Error connecting to the database:", e)
+
+
+class Movie(db.Model):
+    __tablename__ = "movies"
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(100))
+    poster = db.Column(db.String(255))
+    rating = db.Column(db.Float)
+    summary = db.Column(db.String(500))
+    trailer = db.Column(db.String(255))
+
+    # JSON - keys
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "poster": self.poster,
+            "rating": self.rating,
+            "description": self.summary,  # name it anything you want on how to display in frontend
+            "trailer": self.trailer,
+        }
+
+
+# /movies -> json
+@app.get("/movies")
+def get_movies():
+    movie_list = Movie.query.all()  # select * from movies | movie_list iterator
+    data = [movie.to_dict() for movie in movie_list]  # lisy of dictionaries
+    return jsonify(data)
+
+
+# task 1: data from azure (mySQL)
+@app.get("/movies/<id>")
+def get_movie(id):
+    movie = Movie.query.get(id)
+    if movie:
+        return jsonify(movie.to_dict())
+    else:
+        return jsonify({"message": "Movie not found"}), 404
+
+
+# task 2: /movies-list -> display the data on the page
+@app.route("/movie-list")
+def movie_list():
+    movie_list = Movie.query.all()
+    data = [movie.to_dict() for movie in movie_list]
+    return render_template("movie-list.html", movies=data)
+
+
+# task 3: /movies-list/99 -> display the data on the page from azure (mysql)
+@app.route("/movie-list/<movie_id>")
+def movie_detail(movie_id):
+    movie = Movie.query.get(movie_id)
+    data = movie.to_dict()
+    if data:
+        return render_template("movie-detail.html", movie=data)
+    else:
+        return "<h1>Movie not found</h1>", 404
+
 
 # local- not in db
 # movies = [
@@ -257,101 +333,115 @@ def hello_world():
 #     },
 # ]
 
-movies = [
-    {
-        "id": "99",
-        "name": "Vikram",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg",
-        "rating": 8.4,
-        "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
-        "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
-    },
-    {
-        "id": "100",
-        "name": "RRR",
-        "poster": "https://englishtribuneimages.blob.core.windows.net/gallary-content/2021/6/Desk/2021_6$largeimg_977224513.JPG",
-        "rating": 8.8,
-        "summary": "RRR is an upcoming Indian Telugu-language period action drama film directed by S. S. Rajamouli, and produced by D. V. V. Danayya of DVV Entertainments.",
-        "trailer": "https://www.youtube.com/embed/f_vbAtFSEc0",
-    },
-    {
-        "id": "101",
-        "name": "Iron man 2",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
-        "rating": 7,
-        "summary": "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
-        "trailer": "https://www.youtube.com/embed/wKtcmiifycU",
-    },
-    {
-        "id": "102",
-        "name": "No Country for Old Men",
-        "poster": "https://upload.wikimedia.org/wikipedia/en/8/8b/No_Country_for_Old_Men_poster.jpg",
-        "rating": 8.1,
-        "summary": "A hunter's life takes a drastic turn when he discovers two million dollars while strolling through the aftermath of a drug deal. He is then pursued by a psychopathic killer who wants the money.",
-        "trailer": "https://www.youtube.com/embed/38A__WT3-o0",
-    },
-    {
-        "id": "103",
-        "name": "Jai Bhim",
-        "poster": "https://m.media-amazon.com/images/M/MV5BY2Y5ZWMwZDgtZDQxYy00Mjk0LThhY2YtMmU1MTRmMjVhMjRiXkEyXkFqcGdeQXVyMTI1NDEyNTM5._V1_FMjpg_UX1000_.jpg",
-        "summary": "A tribal woman and a righteous lawyer battle in court to unravel the mystery around the disappearance of her husband, who was picked up the police on a false case",
-        "rating": 8.8,
-        "trailer": "https://www.youtube.com/embed/nnXpbTFrqXA",
-    },
-    {
-        "id": "104",
-        "name": "The Avengers",
-        "rating": 8,
-        "summary": "Marvel's The Avengers (classified under the name Marvel Avengers\n Assemble in the United Kingdom and Ireland), or simply The Avengers, is\n a 2012 American superhero film based on the Marvel Comics superhero team\n of the same name.",
-        "poster": "https://terrigen-cdn-dev.marvel.com/content/prod/1x/avengersendgame_lob_crd_05.jpg",
-        "trailer": "https://www.youtube.com/embed/eOrNdBpGMv8",
-    },
-    {
-        "id": "105",
-        "name": "Interstellar",
-        "poster": "https://m.media-amazon.com/images/I/A1JVqNMI7UL._SL1500_.jpg",
-        "rating": 8.6,
-        "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\n of researchers, to find a new planet for humans.",
-        "trailer": "https://www.youtube.com/embed/zSWdZVtXT7E",
-    },
-    {
-        "id": "106",
-        "name": "Baahubali",
-        "poster": "https://flxt.tmsimg.com/assets/p11546593_p_v10_af.jpg",
-        "rating": 8,
-        "summary": "In the kingdom of Mahishmati, Shivudu falls in love with a young warrior woman. While trying to woo her, he learns about the conflict-ridden past of his family and his true legacy.",
-        "trailer": "https://www.youtube.com/embed/sOEg_YZQsTI",
-    },
-    {
-        "id": "107",
-        "name": "Ratatouille",
-        "poster": "https://resizing.flixster.com/gL_JpWcD7sNHNYSwI1ff069Yyug=/ems.ZW1zLXByZC1hc3NldHMvbW92aWVzLzc4ZmJhZjZiLTEzNWMtNDIwOC1hYzU1LTgwZjE3ZjQzNTdiNy5qcGc=",
-        "rating": 8,
-        "summary": "Remy, a rat, aspires to become a renowned French chef. However, he fails to realise that people despise rodents and will never enjoy a meal cooked by him.",
-        "trailer": "https://www.youtube.com/embed/NgsQ8mVkN8w",
-    },
-    {
-        "name": "PS2",
-        "poster": "https://m.media-amazon.com/images/M/MV5BYjFjMTQzY2EtZjQ5MC00NGUyLWJiYWMtZDI3MTQ1MGU4OGY2XkEyXkFqcGdeQXVyNDExMjcyMzA@._V1_.jpg",
-        "summary": "Ponniyin Selvan: I is an upcoming Indian Tamil-language epic period action film directed by Mani Ratnam, who co-wrote it with Elango Kumaravel and B. Jeyamohan",
-        "rating": 8,
-        "trailer": "https://www.youtube.com/embed/KsH2LA8pCjo",
-        "id": "108",
-    },
-    {
-        "name": "Thor: Ragnarok",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMjMyNDkzMzI1OF5BMl5BanBnXkFtZTgwODcxODg5MjI@._V1_.jpg",
-        "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\\n of researchers, to find a new planet for humans.",
-        "rating": 8.8,
-        "trailer": "https://youtu.be/NgsQ8mVkN8w",
-        "id": "109",
-    },
-]
+# movies = [
+#     {
+#         "id": "99",
+#         "name": "Vikram",
+#         "poster": "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg",
+#         "rating": 8.4,
+#         "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
+#         "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
+#     },
+#     {
+#         "id": "100",
+#         "name": "RRR",
+#         "poster": "https://englishtribuneimages.blob.core.windows.net/gallary-content/2021/6/Desk/2021_6$largeimg_977224513.JPG",
+#         "rating": 8.8,
+#         "summary": "RRR is an upcoming Indian Telugu-language period action drama film directed by S. S. Rajamouli, and produced by D. V. V. Danayya of DVV Entertainments.",
+#         "trailer": "https://www.youtube.com/embed/f_vbAtFSEc0",
+#     },
+#     {
+#         "id": "101",
+#         "name": "Iron man 2",
+#         "poster": "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
+#         "rating": 7,
+#         "summary": "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
+#         "trailer": "https://www.youtube.com/embed/wKtcmiifycU",
+#     },
+#     {
+#         "id": "102",
+#         "name": "No Country for Old Men",
+#         "poster": "https://upload.wikimedia.org/wikipedia/en/8/8b/No_Country_for_Old_Men_poster.jpg",
+#         "rating": 8.1,
+#         "summary": "A hunter's life takes a drastic turn when he discovers two million dollars while strolling through the aftermath of a drug deal. He is then pursued by a psychopathic killer who wants the money.",
+#         "trailer": "https://www.youtube.com/embed/38A__WT3-o0",
+#     },
+#     {
+#         "id": "103",
+#         "name": "Jai Bhim",
+#         "poster": "https://m.media-amazon.com/images/M/MV5BY2Y5ZWMwZDgtZDQxYy00Mjk0LThhY2YtMmU1MTRmMjVhMjRiXkEyXkFqcGdeQXVyMTI1NDEyNTM5._V1_FMjpg_UX1000_.jpg",
+#         "summary": "A tribal woman and a righteous lawyer battle in court to unravel the mystery around the disappearance of her husband, who was picked up the police on a false case",
+#         "rating": 8.8,
+#         "trailer": "https://www.youtube.com/embed/nnXpbTFrqXA",
+#     },
+#     {
+#         "id": "104",
+#         "name": "The Avengers",
+#         "rating": 8,
+#         "summary": "Marvel's The Avengers (classified under the name Marvel Avengers\n Assemble in the United Kingdom and Ireland), or simply The Avengers, is\n a 2012 American superhero film based on the Marvel Comics superhero team\n of the same name.",
+#         "poster": "https://terrigen-cdn-dev.marvel.com/content/prod/1x/avengersendgame_lob_crd_05.jpg",
+#         "trailer": "https://www.youtube.com/embed/eOrNdBpGMv8",
+#     },
+#     {
+#         "id": "105",
+#         "name": "Interstellar",
+#         "poster": "https://m.media-amazon.com/images/I/A1JVqNMI7UL._SL1500_.jpg",
+#         "rating": 8.6,
+#         "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\n of researchers, to find a new planet for humans.",
+#         "trailer": "https://www.youtube.com/embed/zSWdZVtXT7E",
+#     },
+#     {
+#         "id": "106",
+#         "name": "Baahubali",
+#         "poster": "https://flxt.tmsimg.com/assets/p11546593_p_v10_af.jpg",
+#         "rating": 8,
+#         "summary": "In the kingdom of Mahishmati, Shivudu falls in love with a young warrior woman. While trying to woo her, he learns about the conflict-ridden past of his family and his true legacy.",
+#         "trailer": "https://www.youtube.com/embed/sOEg_YZQsTI",
+#     },
+#     {
+#         "id": "107",
+#         "name": "Ratatouille",
+#         "poster": "https://resizing.flixster.com/gL_JpWcD7sNHNYSwI1ff069Yyug=/ems.ZW1zLXByZC1hc3NldHMvbW92aWVzLzc4ZmJhZjZiLTEzNWMtNDIwOC1hYzU1LTgwZjE3ZjQzNTdiNy5qcGc=",
+#         "rating": 8,
+#         "summary": "Remy, a rat, aspires to become a renowned French chef. However, he fails to realise that people despise rodents and will never enjoy a meal cooked by him.",
+#         "trailer": "https://www.youtube.com/embed/NgsQ8mVkN8w",
+#     },
+#     {
+#         "name": "PS2",
+#         "poster": "https://m.media-amazon.com/images/M/MV5BYjFjMTQzY2EtZjQ5MC00NGUyLWJiYWMtZDI3MTQ1MGU4OGY2XkEyXkFqcGdeQXVyNDExMjcyMzA@._V1_.jpg",
+#         "summary": "Ponniyin Selvan: I is an upcoming Indian Tamil-language epic period action film directed by Mani Ratnam, who co-wrote it with Elango Kumaravel and B. Jeyamohan",
+#         "rating": 8,
+#         "trailer": "https://www.youtube.com/embed/KsH2LA8pCjo",
+#         "id": "108",
+#     },
+#     {
+#         "name": "Thor: Ragnarok",
+#         "poster": "https://m.media-amazon.com/images/M/MV5BMjMyNDkzMzI1OF5BMl5BanBnXkFtZTgwODcxODg5MjI@._V1_.jpg",
+#         "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\\n of researchers, to find a new planet for humans.",
+#         "rating": 8.8,
+#         "trailer": "https://youtu.be/NgsQ8mVkN8w",
+#         "id": "109",
+#     },
+# ]
 
 
-@app.route("/about")
-def about_page():
-    return render_template("about.html", movies=movies)
+# @app.route("/movie-list")
+# def movie_list_page():
+#     return render_template("movie-list.html", movies=movies)
+
+
+# @app.route("/movie-list/<movie_id>")
+# def movie_detail(movie_id):
+#     movie = next((movie for movie in movies if movie["id"] == movie_id), None)
+#     if movie:
+#         return render_template("movie-detail.html", movie=movie)
+#     else:
+#         return "<h1>Movie not found</h1>", 404
+
+
+# @app.route("/about")
+# def about_page():
+#     return render_template("about.html", movies=movies)
 
 
 name = "Caleb"
@@ -361,3 +451,65 @@ hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]
 @app.route("/profile")
 def profile_page():
     return render_template("profile.html", name=name, hobbies=hobbies)
+
+
+@app.route("/login", methods=["GET"])
+def login_page():
+    return render_template("forms.html")
+
+
+@app.route("/dashboard", methods=["POST"])
+def dashboard_page():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    print("Dashboard page", username, password)
+    return f"<h1>Hi, {username}</h1>"
+
+
+# not secure but you can use it for search functionality
+# @app.route("/dashboard", methods=["GET"])
+# def dashboard_page():
+#     username = request.args.get("username")
+#     password = request.args.get("password")
+#     print("Dashboard page", username, password)
+#     return f"<h1>Hi, {username}</h1>"
+
+
+# ================
+
+
+@app.route("/movie-list/add", methods=["GET"])  # HOF
+def add_movie():
+    return render_template("add-movie.html")
+
+
+@app.route("/movie-list/success", methods=["POST"])  # HOF
+def create_movie():
+    name = request.form.get("name")
+    poster = request.form.get("poster")
+    rating = request.form.get("rating")
+    summary = request.form.get("summary")
+    trailer = request.form.get("trailer")
+    print(name, poster, rating, summary, trailer)
+
+    # Creating a dictionary
+    new_movie = {
+        "name": name,
+        "poster": poster,
+        "rating": rating,
+        "summary": summary,
+        "trailer": trailer,
+    }
+
+    # Creating the new id
+    movie_ids = [int(movie["id"]) for movie in movies]
+    max_id = max(movie_ids)
+    new_movie["id"] = str(max_id + 1)
+    # adding the to the list
+    movies.append(new_movie)
+
+    return "<h1>Movie added Successfully</h1>"
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

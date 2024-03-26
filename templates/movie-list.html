@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+    }
+ 
+    .movie-container {
+      /* background: orange; */
+      width: 300px;
+    }
+ 
+    .movie-spec {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+ 
+    .movie-poster {
+      height: 500px;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 24px;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    }
+ 
+    .movie-name {
+      margin: 0px;
+    }
+ 
+    .movie-list-container {
+      display: flex;
+      gap: 24px;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .movie-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+  <body>
+    <div class="movie-list-container">
+      {% for movie in movies %}
+      <div class="movie-container">
+        <img class="movie-poster" src="{{movie.poster}}" alt="{{movie.name}}" />
+        <div class="movie-spec">
+          <h2 class="movie-name">{{movie.name}}</h2>
+          <p>⭐ {{movie.rating}}</p>
+        </div>
+        <p>{{movie.summary}}</p>
+        <div class="movie-actions">
+          <a href="/movie-list/<id>">View More</a>
+          <a href="/movie-list/<id>">Delete</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
