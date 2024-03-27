@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        /* .user_container {
+        .user_container {
             margin: 0;
             display: grid;
             place-content: center;
@@ -18,15 +18,15 @@
             object-fit: cover;
         }
 
-        h1 {
+        p {
             font-family: sans-serif; 
             font-weight: normal; 
         }
 
-        h1 span {
+        p span {
             font-style: italic; 
             font-weight: bold; 
-        } */
+        }
 
         body {
             font-family: Arial, sans-serif;
@@ -87,19 +87,19 @@
 
     <!-- shorter way -->
     <!-- mustache -->
-    <!-- {% for user in users %}
+    {% for user in users %}
     <div class="user-container">
       <img class="user-pic" src="{{user.pic}}" alt="Profile picture" />
       <p class="user-msg">
         Hello,
         <span class="user-name"
-          >{{user.name}} {{ "🚀" if user.pro else "🎊🎊" }}
+          >{{user.name}} {{ "🚀" if user.pro else "🎊" }}
         </span>
       </p>
     </div>
-    {% endfor %} -->
+    {% endfor %}
 
-    {% for movie in movies %}
+    <!-- {% for movie in movies %}
     <div class="container">
         <img src="{{ movie.poster }}" alt="{{ movie.name }}" class="poster">
         <h2 class="name">{{ movie.name }}</h2>
@@ -115,6 +115,6 @@
         </div>
         <p class="summary">{{ movie.summary }}</p>
     </div>
-    {% endfor %}
+    {% endfor %} -->
 </body>
 </html>
