@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Movie</title>
     <style>
-        .login-form {
+        .add-form {
             display: grid;
             gap: 12px;
         }
     </style>
 </head>
 <body>
-    <form class="add-form" action="{{url_for('create_movie')}}" method="POST">
-        <input type="text"name="title" placeholder="Title">
-        <input type="text"name="poster" placeholder="Poster">
+    <form class="add" action="{{url_for('added_movie')}}" method="POST">
+        <input type="text" name="name" placeholder="Title">
+        <input type="text" name="poster" placeholder="Poster">
         <input name="summary" type="text" placeholder="Summary"/>
         <input name="rating" type="text" placeholder="Rating"/>
         <input name="trailer" type="text" placeholder="Trailer"/>

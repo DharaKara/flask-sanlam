@@ -1,12 +1,15 @@
+import os
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from dotenv import load_dotenv
-import os
+import uuid
 
-app = Flask(__name__)
 load_dotenv()  # os env (environmental variable)
 print(os.environ.get("AZURE_DATABASE_URL"))
+
+app = Flask(__name__)
+
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
@@ -23,7 +26,7 @@ except Exception as e:
 
 class Movie(db.Model):
     __tablename__ = "movies"
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100))
     poster = db.Column(db.String(255))
     rating = db.Column(db.Float)
@@ -77,6 +80,89 @@ def movie_detail(movie_id):
         return render_template("movie-detail.html", movie=data)
     else:
         return "<h1>Movie not found</h1>", 404
+
+
+# task 4: db.session.delete(movie)
+@app.delete("/movies/<id>")
+def delete_movie(id):
+    # Permission to modify the lexical scope variable
+    filtered_movie = Movie.query.get(id)
+    if not filtered_movie:
+        return jsonify({"message": "Movie not found"}), 404
+
+    try:
+        data = filtered_movie.to_dict()
+        db.session.delete(filtered_movie)
+        db.session.commit()  # Making the change (update/delete/create) permanent
+        return jsonify({"message": "Deleted Successfully", "data": data})
+    except Exception as e:
+        db.session.rollback()  # Undo the change
+        return jsonify({"message": str(e)}), 500
+
+
+# task 5, add
+# you cant undo after commit, so if error, rollback()
+# @app.post("/movies")
+# def create_movies():
+#     data = request.json  # body
+#     new_movie = Movie(
+#         name=data["name"],
+#         poster=data["poster"],
+#         rating=data["rating"],
+#         summary=data["summary"],
+#         trailer=data["trailer"],
+#     )
+#     db.session.add(new_movie)
+#     db.session.commit()
+#     # movies.append(new_movie)
+#     result = {"message": "Added Successfully", "data": new_movie.to_dict()}
+#     return jsonify(result), 201
+
+
+# task 6: exception handling
+@app.post("/movies")
+def create_movies():
+    try:
+        data = request.json
+        new_movie = Movie(
+            # **data
+            name=data["name"],
+            poster=data["poster"],
+            rating=data["rating"],
+            summary=data["summary"],
+            trailer=data["trailer"],
+        )
+        db.session.add(new_movie)
+        db.session.commit()
+        result = {"message": "Added Successfully", "data": new_movie.to_dict()}
+        return jsonify(result), 201
+    except KeyError as e:
+        error_message = f"KeyError: Missing required field '{e.args[0]}'"
+        return jsonify({"message": error_message}), 400
+    except Exception as e:
+        db.session.rollback()  # Rollback changes if an error occurs
+        return jsonify({"message": str(e)}), 500
+
+
+# task 7: convert to db call
+@app.put("/movies/<id>")
+def update_movie_by_id(id):
+    data = request.json
+    movie_to_update = Movie.query.get(id)
+    try:
+        # movie_to_update.name = data.get("name", movie_to_update.name)
+        # movie_to_update.poster = data.get("poster", movie_to_update.poster)
+        # movie_to_update.rating = data.get("rating", movie_to_update.rating)
+        # movie_to_update.summary = data.get("summary", movie_to_update.summary)
+        # movie_to_update.trailer = data.get("trailer", movie_to_update.trailer)
+        for key, value in data.items():
+            if hasattr(movie_to_update, key, value):
+                setattr(movie_to_update, key, value)
+        db.session.commit()
+        return jsonify({"message": "Movie updated", "data": movie_to_update.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
 
 
 # local- not in db
@@ -478,37 +564,83 @@ def dashboard_page():
 # ================
 
 
-@app.route("/movie-list/add", methods=["GET"])  # HOF
-def add_movie():
-    return render_template("add-movie.html")
-
-
-@app.route("/movie-list/success", methods=["POST"])  # HOF
-def create_movie():
-    name = request.form.get("name")
-    poster = request.form.get("poster")
-    rating = request.form.get("rating")
-    summary = request.form.get("summary")
-    trailer = request.form.get("trailer")
-    print(name, poster, rating, summary, trailer)
-
-    # Creating a dictionary
-    new_movie = {
-        "name": name,
-        "poster": poster,
-        "rating": rating,
-        "summary": summary,
-        "trailer": trailer,
+@app.route("/movie-list/add", methods=["POST"])
+def added_movie():
+    data = {
+        "name": request.form.get("name"),
+        "poster": request.form.get("poster"),
+        "rating": float(request.form.get("rating")),  # Convert rating to float
+        "summary": request.form.get("summary"),
+        "trailer": request.form.get("trailer")
     }
+    try:
+        new_movie = Movie(**data)
+        db.session.add(new_movie)
+        db.session.commit()
+        return f"<h1>{data["name"]} added Successfully</h1>"
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error occurred: {str(e)}</h1>", 500
+    
+def delete_movie_by_id():
+    print(request.form.get("movie_id"))
+    id = request.form.get("movie_id")
+    filtered_movie = Movie.query.get(id)
+    if not filtered_movie:
+        return "<h1>Movie not found</h1>", 404
+    try:
+        data = filtered_movie.to_dict()
+        db.session.delete(filtered_movie)
+        db.session.commit()  # Making the change (update/delete/create) permanent
+        return f"<h1>{data['name']} Movie deleted Successfully</h1>"
+    except Exception as e:
+        db.session.rollback()  # Undo the change
+        return f"<h1>Error happened {str(e)}</h1>", 500
 
-    # Creating the new id
-    movie_ids = [int(movie["id"]) for movie in movies]
-    max_id = max(movie_ids)
-    new_movie["id"] = str(max_id + 1)
-    # adding the to the list
-    movies.append(new_movie)
 
-    return "<h1>Movie added Successfully</h1>"
+@app.route("/movie-list/delete", methods=["POST"])  # HOF
+def delete_movie_by_id():
+    print(request.form.get("movie_id"))
+    id = request.form.get("movie_id")
+    filtered_movie = Movie.query.get(id)
+    if not filtered_movie:
+        return "<h1>Movie not found</h1>", 404
+    try:
+        data = filtered_movie.to_dict()
+        db.session.delete(filtered_movie)
+        db.session.commit()  # Making the change (update/delete/create) permanent
+        return f"<h1>{data['name']} Movie deleted Successfully</h1>"
+    except Exception as e:
+        db.session.rollback()  # Undo the change
+        return f"<h1>Error happened {str(e)}</h1>", 500
+
+
+# @app.route("/movie-list/success", methods=["POST"])  # HOF
+# def create_movie():
+#     name = request.form.get("name")
+#     poster = request.form.get("poster")
+#     rating = request.form.get("rating")
+#     summary = request.form.get("summary")
+#     trailer = request.form.get("trailer")
+#     print(name, poster, rating, summary, trailer)
+
+#     # Creating a dictionary
+#     new_movie = {
+#         "name": name,
+#         "poster": poster,
+#         "rating": rating,
+#         "summary": summary,
+#         "trailer": trailer,
+#     }
+
+#     # Creating the new id
+#     movie_ids = [int(movie["id"]) for movie in movies]
+#     max_id = max(movie_ids)
+#     new_movie["id"] = str(max_id + 1)
+#     # adding the to the list
+#     movies.append(new_movie)
+
+#     return "<h1>Movie added Successfully</h1>"
 
 
 if __name__ == "__main__":
