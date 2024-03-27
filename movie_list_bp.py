@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for
 from main import db, Movie
 
 movie_list_bp = Blueprint("movie_list_bp", __name__)
@@ -68,3 +68,31 @@ def create_movie():
     except Exception as e:
         db.session.rollback()  # Undo the change
         return f"<h1>Error happened {str(e)}</h1>", 500
+
+
+# edit by id task
+@movie_list_bp.route("/<id>", methods=["POST"])
+def edit_movie_by_id(id):
+    movie_id = request.form.get("movie_id")
+    filtered_movie = Movie.query.get(movie_id)
+    if not filtered_movie:
+        return "<h1>Movie not found</h1>", 404
+
+    name = request.form.get("name", filtered_movie.name)
+    poster = request.form.get("poster", filtered_movie.poster)
+    rating = request.form.get("rating", filtered_movie.rating)
+    summary = request.form.get("summary", filtered_movie.summary)
+    trailer = request.form.get("trailer", filtered_movie.trailer)
+
+    try:
+        filtered_movie.name = name
+        filtered_movie.poster = poster
+        filtered_movie.rating = rating
+        filtered_movie.summary = summary
+        filtered_movie.trailer = trailer
+
+        db.session.commit()
+        return redirect(url_for("movie_list_bp.edit-movie", id=movie_id))
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error happened: {str(e)}</h1>", 500

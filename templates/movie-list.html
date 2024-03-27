@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Movie List</title>
   </head>
   <style>
     body {
@@ -56,9 +56,13 @@
         </div>
         <p>{{movie.summary}}</p>
         <div class="movie-actions">
-          <a href="/movie-list/<id>">View More</a>
-          <form action="{{url_for('movie_list_bp.delete_movie_by_id')}}" method="POST">
-            <input type="text" name="movie_id" value="{{movie.id}}" hidden/>
+          <a href="{{ url_for('movie_list_bp.movie_detail_page', id=movie.id) }}">View More</a>
+          <form action="{{ url_for('movie_list_bp.edit_movie_by_id', id=movie.id) }}" method="POST">
+            <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
+            <button>Edit</button>
+          </form>  
+          <form action="{{ url_for('movie_list_bp.delete_movie_by_id') }}" method="POST">
+            <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
             <button>Delete</button>
           </form>
         </div>
