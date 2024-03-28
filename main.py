@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 import uuid
 
 load_dotenv()  # os env (environmental variable)
-print(os.environ.get("AZURE_DATABASE_URL"))
+print(os.environ.get("AZURE_DATABASE_URL"), os.environ.get("FORM_SECRET_KEY"))
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
 
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 connection_string = os.environ.get("AZURE_DATABASE_URL")
@@ -26,15 +27,18 @@ class Movie(db.Model):
     summary = db.Column(db.String(500))
     trailer = db.Column(db.String(255))
 
-    # JSON - keys
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
+    username = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(100))
+
     def to_dict(self):
         return {
             "id": self.id,
-            "name": self.name,
-            "poster": self.poster,
-            "rating": self.rating,
-            "description": self.summary,  # name it anything you want on how to display in frontend
-            "trailer": self.trailer,
+            "username": self.username,
+            "password": self.password,
         }
 
 
@@ -43,6 +47,7 @@ try:
         # Use text() to explicitly declare your SQL command
         result = db.session.execute(text("SELECT 1")).fetchall()
         print("Connection successful:", result)
+        db.create_all()  # syncing
 except Exception as e:
     print("Error connecting to the database:", e)
 
@@ -50,12 +55,15 @@ except Exception as e:
 from about_bp import about_bp
 from movies_bp import movies_bp
 from movie_list_bp import movie_list_bp
-from login_bp import login_bp
+
+# from login_bp import login_bp
+from users_bp import users_bp
 
 app.register_blueprint(about_bp, url_prefix="/about")
 app.register_blueprint(movies_bp, url_prefix="/movies")
 app.register_blueprint(movie_list_bp, url_prefix="/movie-list")
-app.register_blueprint(login_bp, url_prefix="/login")
+# app.register_blueprint(login_bp, url_prefix="/login")
+app.register_blueprint(users_bp)
 
 
 name = "Caleb"
@@ -75,9 +83,5 @@ def dashboard_page():
     return f"<h1>Hi, {username}</h1>"
 
 
-# Task - User Model | id, username, password
-# Sign Up page
-# Login page
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True)

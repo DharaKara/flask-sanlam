@@ -31,3 +31,5 @@ mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 
 pip install python-dotenv
 from dotenv load dotenv
+
+pip install Flask-WTF
