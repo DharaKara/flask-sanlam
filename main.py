@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 import uuid
 
 load_dotenv()  # os env (environmental variable)
-print(os.environ.get("AZURE_DATABASE_URL"), os.environ.get("FORM_SECRET_KEY"))
+print(os.environ.get("AZURE_DATABASE_URL"))  # , os.environ.get("FORM_SECRET_KEY")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
+# app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
 
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 connection_string = os.environ.get("AZURE_DATABASE_URL")

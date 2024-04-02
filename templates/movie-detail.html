@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
+{% extends 'base.html' %}
+{% block title %}Movie Detail{% endblock %}
+{% block style %}
   <style>
     body {
       font-family: Roboto, sans-serif;
@@ -40,7 +36,9 @@
       flex-wrap: wrap;
     }
   </style>
-  <body>
+ {% endblock %}
+
+ {% block body %}
         <div class="movie-detail-container">
             <iframe
                 class="movie-trailer"
@@ -58,5 +56,4 @@
             </div>
             <p>{{movie.summary}}</p>
         </div>
-    </body>
-</html>
+{% endblock %}

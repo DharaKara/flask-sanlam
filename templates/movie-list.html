@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movie List</title>
-  </head>
+{% extends 'base.html' %}
+{% block title %}Movie List{% endblock %}
+{% block style %}
   <style>
     body {
       font-family: Roboto, sans-serif;
@@ -45,29 +41,31 @@
       justify-content: space-between;
     }
   </style>
-  <body>
-    <div class="movie-list-container">
-      {% for movie in movies %}
-      <div class="movie-container">
-        <img class="movie-poster" src="{{movie.poster}}" alt="{{movie.name}}" />
-        <div class="movie-spec">
-          <h2 class="movie-name">{{movie.name}}</h2>
-          <p>⭐ {{movie.rating}}</p>
-        </div>
-        <p>{{movie.summary}}</p>
-        <div class="movie-actions">
-          <a href="{{ url_for('movie_list_bp.movie_detail_page', id=movie.id) }}">View More</a>
-          <form action="{{ url_for('movie_list_bp.edit_movie_by_id', id=movie.id) }}" method="POST">
-            <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
-            <button>Edit</button>
-          </form>  
-          <form action="{{ url_for('movie_list_bp.delete_movie_by_id') }}" method="POST">
-            <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
-            <button>Delete</button>
-          </form>
-        </div>
+{% endblock %}
+
+{% block body %}
+  <div class="movie-list-container">
+    {% for movie in movies %}
+    <div class="movie-container">
+      <img class="movie-poster" src="{{movie.poster}}" alt="{{movie.name}}" />
+      <div class="movie-spec">
+        <h2 class="movie-name">{{movie.name}}</h2>
+        <p>⭐ {{movie.rating}}</p>
       </div>
-      {% endfor %}
+      <p>{{movie.summary}}</p>
+      <div class="movie-actions">
+        <a href="{{ url_for('movie_list_bp.movie_detail_page', id=movie.id) }}">View More</a>
+        <form action="{{ url_for('movie_list_bp.edit_movie_by_id', id=movie.id) }}" method="POST">
+          <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
+          <button>Edit</button>
+        </form>  
+        <form action="{{ url_for('movie_list_bp.delete_movie_by_id') }}" method="POST">
+          <input type="text" name="movie_id" value="{{ movie.id }}" hidden/>
+          <button>Delete</button>
+        </form>
+      </div>
     </div>
-  </body>
-</html>
+    {% endfor %}
+  </div>
+{% endblock %}
+

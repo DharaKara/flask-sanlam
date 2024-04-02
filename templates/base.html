@@ -3,71 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=[device-width], initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        /* .user_container {
-            margin: 0;
-            display: grid;
-            place-content: center;
-            min-height: 100vh;
-        }
-        img {
-            border-radius: 50%; 
-            height: 175px; 
-            aspect-ratio: 1/1;
-            object-fit: cover;
-        }
-
-        h1 {
-            font-family: sans-serif; 
-            font-weight: normal; 
-        }
-
-        h1 span {
-            font-style: italic; 
-            font-weight: bold; 
-        } */
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .container {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        .poster {
-            border-radius: 10px;
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-        .name {
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        .rating {
-            align-self: flex-end;
-        }
-        .summary {
-            color: #666;
-        }
-    </style>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block style %}{% endblock %}
 </head>
 <body>
     <!-- semantic elements, like a div nothing special -->
-    <nav>
-        <ul>
-            <li><a href="/profile">Profile</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/">Home</a></li>
-        </ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='sanlam_logo.jpg') }}" alt="Sanlam Logo" height="80">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link active" href="/">Home</a>
+                <a class="nav-item nav-link" href="/about">About</a>
+                <a class="nav-item nav-link" href="/profile">Profile</a>
+                <!-- Add more navigation links as needed -->
+            </div>
+        </div>
     </nav>
     {% block body %} {% endblock %}
 </body>
