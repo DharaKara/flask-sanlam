@@ -1,6 +1,6 @@
 from flask import render_template, request, Blueprint
 
-main_bp = Blueprint("movies", __name__)
+main_bp = Blueprint("main_bp", __name__)
 
 name = "Caleb"
 hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]

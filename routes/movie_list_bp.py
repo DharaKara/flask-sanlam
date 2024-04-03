@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import login_required
 
 # from app import db, Movie
 from extensions import db
@@ -12,6 +13,7 @@ movie_list_bp = Blueprint("movie_list_bp", __name__)
 # Task 2: /movies-list -> Display the data on the page from Azure (MSSQL)
 # Movie list dashboard
 @movie_list_bp.route("/")  # HOF
+@login_required  # added
 def movie_list_page():
     movie_list = Movie.query.all()  # Select * from movies | movie_list iterator
     data = [movie.to_dict() for movie in movie_list]  # list of dictionaries

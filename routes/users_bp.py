@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from flask_login import login_user
 
 # from app import db, Movie
 from extensions import db
@@ -130,5 +131,9 @@ class LoginForm(FlaskForm):
 def login_page():
     form = LoginForm()
     if form.validate_on_submit():
+        user_from_db = User.query.filter_by(
+            username=form.username.data
+        ).first()  # added
+        login_user(user_from_db)  # token is issued - (cookies) stored browser
         return "<h2>Logged in successfully</h2>", 200
     return render_template("login.html", form=form)

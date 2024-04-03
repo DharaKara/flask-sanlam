@@ -6,9 +6,10 @@ import uuid
 
 # absolute (project) import
 from extensions import db
+from flask_login import UserMixin
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):  # added usermixin for isactive
     __tablename__ = "users"
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(50), nullable=False, unique=True)

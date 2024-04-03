@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint
 
-about_bp = Blueprint("about", __name__)
+about_bp = Blueprint("about_bp", __name__)
 
 users = [
     {

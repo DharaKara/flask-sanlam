@@ -3,12 +3,16 @@ from flask import Flask
 from sqlalchemy.sql import text
 from dotenv import load_dotenv
 from extensions import db
+from models.users import User
+from flask_login import LoginManager
+
+login_manager = LoginManager()
 
 load_dotenv()  # os env (environmental variable)
-print(os.environ.get("AZURE_DATABASE_URL"))  # , os.environ.get("FORM_SECRET_KEY")
+print(os.environ.get("AZURE_DATABASE_URL"), os.environ.get("FORM_SECRET_KEY"))
 
 app = Flask(__name__)
-# app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
+app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
 
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 connection_string = os.environ.get("AZURE_DATABASE_URL")
@@ -16,6 +20,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
 # db = SQLAlchemy(app)  # orm
 db.init_app(app)
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    # Query your User model to retrieve the user based on the user_id
+    return User.query.get(user_id)
+
 
 try:
     with app.app_context():

@@ -10,7 +10,7 @@ git push origin master
 
 pip install flask
 
-flask --app main run --debug
+flask --app app run --debug
 ctrl + C <-to exit>
 
 shortcut:
