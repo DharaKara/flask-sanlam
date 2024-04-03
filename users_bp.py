@@ -1,5 +1,10 @@
 from flask import Blueprint, render_template
-from app import User, db
+
+# from app import db, Movie
+from extensions import db
+
+# from folder.filename import model
+from models.users import User
 
 users_bp = Blueprint("users_bp", __name__)
 # Task - User Model | id, username, password

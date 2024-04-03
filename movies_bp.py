@@ -1,5 +1,10 @@
 from flask import jsonify, request, Blueprint
-from app import Movie, db
+
+# from app import db, Movie
+from extensions import db
+
+# from folder.filename import model
+from models.movie import Movie
 
 
 movies_bp = Blueprint("movies", __name__)

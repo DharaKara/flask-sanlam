@@ -1,5 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from app import db, Movie
+
+# from app import db, Movie
+from extensions import db
+
+# from folder.filename import model
+from models.movie import Movie
 
 movie_list_bp = Blueprint("movie_list_bp", __name__)
 

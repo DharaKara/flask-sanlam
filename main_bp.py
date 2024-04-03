@@ -6,9 +6,19 @@ name = "Caleb"
 hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]
 
 
+@main_bp.route("/")
+def hello_world():
+    return "<h1>Hello, Sanlam! 😀</h1>"
+
+
 @main_bp.route("/profile")
 def profile_page():
     return render_template("profile.html", name=name, hobbies=hobbies)
+
+
+@main_bp.route("/sample")
+def sample():
+    return render_template("sample.html")
 
 
 @main_bp.route("/dashboard", methods=["POST"])
