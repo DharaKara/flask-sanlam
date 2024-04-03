@@ -1,80 +1,43 @@
-commands
-show dbs
-db
-use db
-show collections
+## Commands
+
+```show dbs, db, use db, show collections```
+
 ```db.movies.insert()```
 
 ```db.movies.find()```
 
-```db.collection.find({
-  "id": "100"
-})```
+```db.collection.find({"id": "100"})```
 
-```db.collection.find({
-  rating: 8
-})```
+```db.collection.find({rating: 8})```
 
 ctrl + space for auto complete
 
-```db.collection.find({
-  rating: {
-    $gt: 8
-  }
-})```
+```db.collection.find({rating: {$gt: 8}})```
 
 SELECT * FROM movies
 WHERE rating > 8;
 
-```db.collection.find({
-  rating: {
-    $lt: 8
-  }
-})```
+```db.collection.find({rating: {$lt: 8}})```
 
 SELECT * FROM movies
 WHERE rating < 8;
 
-```db.collection.find({
-  rating: {
-    $gte: 8
-  }
-})```
+```db.collection.find({rating: {$gte: 8}})```
 
 SELECT * FROM movies
 WHERE rating >= 8;
 
-```db.collection.find({
-  rating: {
-    $lte: 8
-  }
-})```
+```db.collection.find({rating: {$lte: 8}})```
 
 SELECT * FROM movies
 WHERE rating <= 8;
 
-```db.collection.find({
-  rating: {
-    "$in": [
-      8.4,
-      7,
-      8.1
-    ]
-  }
-})```
+```db.collection.find({rating: {"$in": [8.4,7,8.1]}})```
 
 SELECT * FROM movies
 WHERE rating IN (8.4, 7, 8.1);
 
-```db.collection.find({
-  rating: {
-    $nin: [
-      8.4,
-      7,
-      8.1
-    ]
-  }
-})```
+```db.collection.find({rating: {$nin: [8.4,7,8.1]}})```
 
 SELECT * FROM movies
 WHERE rating NOT IN (8.4, 7, 8.1);
