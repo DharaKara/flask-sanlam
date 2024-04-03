@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from main import db, Movie
+from app import db, Movie
 
 movie_list_bp = Blueprint("movie_list_bp", __name__)
 

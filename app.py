@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from dotenv import load_dotenv
@@ -58,29 +58,14 @@ from movie_list_bp import movie_list_bp
 
 # from login_bp import login_bp
 from users_bp import users_bp
+from main_bp import main_bp
 
 app.register_blueprint(about_bp, url_prefix="/about")
 app.register_blueprint(movies_bp, url_prefix="/movies")
 app.register_blueprint(movie_list_bp, url_prefix="/movie-list")
 # app.register_blueprint(login_bp, url_prefix="/login")
 app.register_blueprint(users_bp)
-
-
-name = "Caleb"
-hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]
-
-
-@app.route("/profile")
-def profile_page():
-    return render_template("profile.html", name=name, hobbies=hobbies)
-
-
-@app.route("/dashboard", methods=["POST"])
-def dashboard_page():
-    username = request.form.get("username")
-    password = request.form.get("password")
-    print("Dashboard page", username, password)
-    return f"<h1>Hi, {username}</h1>"
+app.register_blueprint(main_bp)
 
 
 # if __name__ == "__main__":

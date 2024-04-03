@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from main import User, db
+from app import User, db
 
 users_bp = Blueprint("users_bp", __name__)
 # Task - User Model | id, username, password

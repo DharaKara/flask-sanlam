@@ -1,5 +1,5 @@
 from flask import jsonify, request, Blueprint
-from main import Movie, db
+from app import Movie, db
 
 
 movies_bp = Blueprint("movies", __name__)
