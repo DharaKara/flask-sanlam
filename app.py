@@ -26,13 +26,13 @@ except Exception as e:
     print("Error connecting to the database:", e)
 
 
-from about_bp import about_bp
-from movies_bp import movies_bp
-from movie_list_bp import movie_list_bp
+from routes.about_bp import about_bp
+from routes.movies_bp import movies_bp
+from routes.movie_list_bp import movie_list_bp
 
 # from login_bp import login_bp
-from users_bp import users_bp
-from main_bp import main_bp
+from routes.users_bp import users_bp
+from routes.main_bp import main_bp
 
 app.register_blueprint(about_bp, url_prefix="/about")
 app.register_blueprint(movies_bp, url_prefix="/movies")
