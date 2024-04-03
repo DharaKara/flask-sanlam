@@ -1,8 +1,8 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from dotenv import load_dotenv
+from extensions import db
 
 load_dotenv()  # os env (environmental variable)
 print(os.environ.get("AZURE_DATABASE_URL"))  # , os.environ.get("FORM_SECRET_KEY")
@@ -14,7 +14,8 @@ app = Flask(__name__)
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
-db = SQLAlchemy(app)  # orm
+# db = SQLAlchemy(app)  # orm
+db.init_app(app)
 
 try:
     with app.app_context():
@@ -29,17 +30,18 @@ except Exception as e:
 from routes.about_bp import about_bp
 from routes.movies_bp import movies_bp
 from routes.movie_list_bp import movie_list_bp
-
-# from login_bp import login_bp
 from routes.users_bp import users_bp
 from routes.main_bp import main_bp
+
+# from login_bp import login_bp
 
 app.register_blueprint(about_bp, url_prefix="/about")
 app.register_blueprint(movies_bp, url_prefix="/movies")
 app.register_blueprint(movie_list_bp, url_prefix="/movie-list")
-# app.register_blueprint(login_bp, url_prefix="/login")
 app.register_blueprint(users_bp)
 app.register_blueprint(main_bp)
+
+# app.register_blueprint(login_bp, url_prefix="/login")
 
 
 # if __name__ == "__main__":
