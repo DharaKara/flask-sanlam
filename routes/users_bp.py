@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
 from flask_login import login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # from app import db, Movie
 from extensions import db
@@ -90,7 +91,9 @@ class RegistrationForm(FlaskForm):
 def register_page():
     form = RegistrationForm()
     if form.validate_on_submit():
-        new_user = User(username=form.username.data, password=form.password.data)
+        password_hash = generate_password_hash(form.password.data)
+        print(form.password.data, password_hash)
+        new_user = User(username=form.username.data, password=password_hash)
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -123,7 +126,7 @@ class LoginForm(FlaskForm):
             form_password = field.data
             user_db_data = user_from_db.to_dict()
             print(user_db_data, form_password)
-            if user_db_data["password"] != form_password:
+            if not check_password_hash(user_db_data["password"], form_password):
                 raise ValidationError("Invalid password")
 
 

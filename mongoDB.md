@@ -12,6 +12,8 @@
 
 ctrl + space for auto complete
 
+## Comparison Operators
+
 ```db.collection.find({rating: {$gt: 8}})```
 
 SELECT * FROM movies

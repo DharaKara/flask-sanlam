@@ -4,7 +4,9 @@ from sqlalchemy.sql import text
 from dotenv import load_dotenv
 from extensions import db
 from models.users import User
+from models.movie import Movie
 from flask_login import LoginManager
+
 
 login_manager = LoginManager()
 
@@ -15,7 +17,9 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key"  # token
 
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
-connection_string = os.environ.get("AZURE_DATABASE_URL")
+# mssql+pyodbc://@<server_name>/<db_name>?driver=<driver_name>
+
+connection_string = os.environ.get("LOCAL_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
 # db = SQLAlchemy(app)  # orm
@@ -34,7 +38,9 @@ try:
         # Use text() to explicitly declare your SQL command
         result = db.session.execute(text("SELECT 1")).fetchall()
         print("Connection successful:", result)
+        # db.drop_all()  # if table exists and you add columns it will not recreate, so we drop it to create it
         db.create_all()  # syncing
+        print("Creation Done")
 except Exception as e:
     print("Error connecting to the database:", e)
 
