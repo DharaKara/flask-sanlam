@@ -61,3 +61,31 @@ connection_string = f"mssql+pyodbc://{username}:{password}@{server}/{database}?d
  
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 db = SQLAlchemy(app)
+
+## 04/04/2024
+
+### projections
+
+projections - inclusion
+db.movies.find({}, {name:1, rating:1}).pretty()
+
+projections - exclusion
+db.movies.find({}, {summary:0, rating:0}).pretty()
+
+you cant mix inclusion and exclusions together - will get an error.
+the only exception you can get is exclude _id
+
+dont need to use .pretty anymore as it is pretty already 
+
+```js
+db.movies.find(
+    { rating: { $gt: 8.5 } },
+    { _id: 0, name: 1, rating: 1 }
+)
+```
+
+```js
+db.movies.find(
+    {}, { _id: 0, name: 1, rating: 1 }.sort({rating: -1})
+)
+```
