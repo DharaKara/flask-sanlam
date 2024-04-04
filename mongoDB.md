@@ -84,8 +84,54 @@ db.movies.find(
 )
 ```
 
+### compound sort
+
 ```js
-db.movies.find(
-    {}, { _id: 0, name: 1, rating: 1 }.sort({rating: -1})
-)
+db.movies.find({}, {_id: 0, name:1, rating:1}).sort({ rating:-1, name:1})
+```
+
+```js
+db.movies.find({}, {_id: 0, name:1, rating:1}).sort({ rating:-1, name:1}).linit(3)
+```
+
+```js
+db.movies.find({}, {_id: 0, name:1, rating:1}).sort({ rating:-1, name:1}).limit(3).skip(3)
+```
+
+### agreggations in mongo db
+
+```js
+db.orders.insertMany([
+  { _id: 0, productName: "Steel beam", status: "new", quantity: 10 },
+  { _id: 1, productName: "Steel beam", status: "urgent", quantity: 20 },
+  { _id: 2, productName: "Steel beam", status: "urgent", quantity: 30 },
+  { _id: 3, productName: "Iron rod", status: "new", quantity: 15 },
+  { _id: 4, productName: "Iron rod", status: "urgent", quantity: 50 },
+  { _id: 5, productName: "Iron rod", status: "urgent", quantity: 10 }
+]);
+```
+
+```js
+db.orders.find()
+```
+
+SELECT productName AS _id, SUM(quantity) AS totalQuantity
+FROM orders
+WHERE status = 'urgent'
+GROUP BY productName;
+
+```js
+db.orders.aggregate([
+  {
+    $match: {
+      status: "urgent"
+    }
+  },
+  {
+    $group: {
+      _id: "$productName",
+      totalQuantity: { $sum: "$quantity" }
+    }
+  }
+])
 ```
