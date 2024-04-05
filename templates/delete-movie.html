@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Movie</title>
+</head>
+<body>
+    <h1>Delete Movie</h1>
+    
+    {% if movies %}
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <p>{{ movie.title }} - {{ movie.release_year }}</p>
+                    <form action="/movies/{{ movie.id }}" method="post">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No movies found</p>
+    {% endif %}
+</body>
+</html>
