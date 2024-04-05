@@ -4,7 +4,6 @@ from sqlalchemy.sql import text
 from dotenv import load_dotenv
 from extensions import db
 from models.users import User
-from models.movie import Movie
 from flask_login import LoginManager
 
 
