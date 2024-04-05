@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Movie</title>
+    <style>
+        .add-form {
+            display: grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <form class="add" action="{{url_for('movie_list_bp.add_movie')}}" method="POST">
+        <input type="text" name="name" placeholder="Title">
+        <input type="text" name="poster" placeholder="Poster">
+        <input name="summary" type="text" placeholder="Summary"/>
+        <input name="rating" type="text" placeholder="Rating"/>
+        <input name="trailer" type="text" placeholder="Trailer"/>
+        <button type="submit">Add Movie</button>
+    </form>
+</body>
+</html>
