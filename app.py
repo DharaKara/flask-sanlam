@@ -4,7 +4,6 @@ from sqlalchemy.sql import text
 from dotenv import load_dotenv
 from extensions import db
 from models.users import User
-from models.movie import Movie
 from flask_login import LoginManager
 
 
@@ -19,7 +18,7 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # "my_secret_key" 
 # mssql+pyodbc://<username>:<password>@<dsn_name>?driver=<driver_name>
 # mssql+pyodbc://@<server_name>/<db_name>?driver=<driver_name>
 
-connection_string = os.environ.get("LOCAL_DATABASE_URL")
+connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
 # db = SQLAlchemy(app)  # orm
